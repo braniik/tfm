@@ -1,0 +1,6 @@
+build/
+build-debug/
+.cache/
+vcpkg_installed/
+*.o
+*.a

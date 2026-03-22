@@ -1,0 +1,8 @@
+BasedOnStyle:                  LLVM
+IndentWidth:                   4
+ColumnLimit:                   100
+AllowShortFunctionsOnASingleLine: Inline
+AlignConsecutiveAssignments:   true
+AlignConsecutiveDeclarations:  true
+AlignTrailingComments:         true
+SortIncludes:                  false
