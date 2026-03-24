@@ -2,21 +2,25 @@
 A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 
 ## Features
-* **Vim-like Bindings:** Navigate your filesystem without leaving the home row. (mostly)
-* **Nerd Font Support:** Awesome icons for files and folders.
-* **Integrated Preview:** Quickly view file metadata and symlink targets.
-* **Zero-Dependency UI:** FTXUI is bundled via CMake so just build and run.
+- **Vim-like bindings:** Navigate your filesystem without leaving the home row. (mostly)
+- **Nerd Font icons:** File type icons for entries and the preview pane.
+- **Rich preview pane:** Text files, directory listings, audio metadata, image dimensions, and ELF/binary hex dumps.
+- **Fuzzy filter:** Filter the current directory in real time.
+- **50/50 split layout:** Equal file list and preview pane.
+
+## Dependencies
+- `ftxui` — pulled automatically via CMake FetchContent, no manual install needed
+- `taglib` — for audio file metadata (title, artist, album, duration, bitrate)
 
 ## Build
 
 ### Arch Linux (tested)
 ```bash
-sudo pacman -S ninja cmake gcc
+sudo pacman -S ninja cmake gcc taglib
 cmake --preset release
 cmake --build build
 ./build/tfm
 ```
-> ftxui is pulled automatically via CMake FetchContent, no system install needed.
 
 ### Debug build
 ```bash
@@ -58,6 +62,13 @@ cmake --build build
 | <kbd>x</kbd> | Cut |
 | <kbd>p</kbd> | Paste |
 
+### Search
+| Key | Action |
+|-----|--------|
+| <kbd>/</kbd> | Open filter bar |
+| <kbd>Esc</kbd> | Close filter, restore full listing |
+| <kbd>Enter</kbd> | Close filter bar, keep results |
+
 ## Project structure
 ```
 tfm/
@@ -82,9 +93,9 @@ tfm/
     │   └── fs_ops.cpp      — filesystem operations
     ├── input/keybinds.cpp  — raw FTXUI events → named Actions
     └── ui/
-        ├── file_pane.cpp   — file list, navigation, dialogs, clipboard
+        ├── file_pane.cpp   — file list, navigation, filter, dialogs, clipboard
         ├── icons.cpp       — Nerd Font icon lookup by kind and extension
-        ├── preview_pane.cpp— right pane, shows type/perms/size/symlink target
+        ├── preview_pane.cpp— text/image/audio/binary/directory preview
         └── theme.cpp       — every color in the app lives here
 ```
 
@@ -93,15 +104,16 @@ tfm/
 - GCC with C++17 support
 - CMake 3.20+
 - Ninja
+- TagLib
 - A [Nerd Font](https://www.nerdfonts.com/) (e.g. `ttf-jetbrains-mono-nerd` from pacman)
 
 ## Roadmap
 - [x] Step 1 — Foundation: directory listing, navigation, theme
 - [x] Step 2 — Two-pane layout, Nerd Font icons, preview pane skeleton
 - [x] Step 3 — File operations: open, create, rename, delete, yank/cut/paste
-- [ ] Step 4 — Preview pane content: text preview, directory stats, kitty image protocol
-- [ ] Step 5 — Fuzzy search and filtering
-- [ ] Step 6 — Shell integration, bookmarks, custom commands
+- [x] Step 4 — Preview pane content: text preview, directory listings, audio metadata, image dimensions, binary/ELF hex dump
+- [x] Step 5 — Real-time fuzzy filter
+- [ ] Step 6 — Shell integration, bookmarks
 - [ ] Step 7 — TOML config, rebindable keys, custom themes
 - [ ] Step 8 — Polish, git indicators
 - [ ] Step 9 — AUR package (maybe)
