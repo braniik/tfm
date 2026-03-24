@@ -6,6 +6,7 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -44,8 +45,7 @@ std::vector<DirEntry> scan_dir(const std::string& path) {
     }
 
     try {
-        for (const auto& e : fs::directory_iterator(path,
-                fs::directory_options::skip_permission_denied)) {
+        for (const auto& e : fs::directory_iterator(path, fs::directory_options::skip_permission_denied)) {
             struct stat st {};
             if (::lstat(e.path().c_str(), &st) != 0) continue;
 

@@ -17,6 +17,7 @@ enum class Action {
     Paste,
     NewFile,
     NewDir,
+    Search,
     Quit,
     Unknown
 };

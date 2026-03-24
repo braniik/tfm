@@ -32,6 +32,12 @@ struct ModalData {
     std::string new_entry_buf;
 };
 
+struct FilterData {
+    bool active = false;
+    std::string buf;
+    std::vector<DirEntry> base;
+};
+
 static Element render_delete_dialog(const std::string& name, const Theme& t) {
     return vbox({
         text(""),
@@ -83,8 +89,9 @@ static Element render_new_entry_dialog(const std::string& buf, bool is_dir, cons
 
 ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
     auto md = std::make_shared<ModalData>();
+    auto fd = std::make_shared<FilterData>();
 
-    auto component = Renderer([&, md] {
+    auto component = Renderer([&, md, fd] {
         auto header = hbox({
             text(" Name") | color(theme.pane_title) | flex,
             text("Perms     ") | color(theme.pane_title) | size(WIDTH, EQUAL, 11),
@@ -102,7 +109,7 @@ ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
 
             auto name_col = style_entry(theme, e.kind, sel, text(" " + label)) | flex;
             auto perms_col = style_entry(theme, e.kind, sel, text(e.perms)) | size(WIDTH, EQUAL, 11);
-            auto size_col = style_entry(theme, e.kind, sel,text(e.kind == EntryKind::Directory ? "         " : fmt_size(e.size)))| size(WIDTH, EQUAL, 9);
+            auto size_col = style_entry(theme, e.kind, sel, text(e.kind == EntryKind::Directory ? "         " : fmt_size(e.size))) | size(WIDTH, EQUAL, 9);
 
             auto row = hbox({ name_col, perms_col, size_col });
             if (sel) row = row | focus;
@@ -123,32 +130,78 @@ ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
 
         Element list_el = vbox(rows) | frame | flex;
 
+        Element base_el = list_el;
         if (md->kind == ModalKind::ConfirmDelete) {
-            const std::string name = !state.entries.empty()
-                ? state.entries[state.cursor].name : "";
-            return dbox({
-                list_el,
-                render_delete_dialog(name, theme) | clear_under | center,
-            });
+            const std::string name = !state.entries.empty() ? state.entries[state.cursor].name : "";
+            base_el = dbox({ list_el, render_delete_dialog(name, theme) | clear_under | center });
+        } else if (md->kind == ModalKind::Rename) {
+            base_el = dbox({ list_el, render_rename_dialog(md->rename_buf, theme) | clear_under | center });
+        } else if (md->kind == ModalKind::NewFile || md->kind == ModalKind::NewDir) {
+            base_el = dbox({ list_el, render_new_entry_dialog(md->new_entry_buf, md->kind == ModalKind::NewDir, theme) | clear_under | center });
         }
-        if (md->kind == ModalKind::Rename) {
-            return dbox({
-                list_el,
-                render_rename_dialog(md->rename_buf, theme) | clear_under | center,
-            });
-        }
-        if (md->kind == ModalKind::NewFile || md->kind == ModalKind::NewDir) {
-            return dbox({
-                list_el,
-                render_new_entry_dialog(md->new_entry_buf,
-                    md->kind == ModalKind::NewDir, theme) | clear_under | center,
-            });
-        }
-        return list_el;
+
+        if (!fd->active) return base_el;
+
+        auto prompt = text(" /  ") | color(theme.dir) | bold;
+        auto query = text(fd->buf + "_") | color(theme.file);
+        auto bar = hbox({ prompt, query | flex });
+
+        return vbox({
+            base_el,
+            separator() | color(theme.border),
+            bar,
+        });
     });
 
-    return CatchEvent(component, [&, md](Event event) -> bool {
+    return CatchEvent(component, [&, md, fd](Event event) -> bool {
         const int n = (int)state.entries.size();
+
+        if (fd->active) {
+            if (event == Event::Escape) {
+                state.entries = fd->base;
+                state.cursor = 0;
+                fd->active = false;
+                fd->buf.clear();
+                return true;
+            }
+            if (event == Event::Return) {
+                fd->active = false;
+                return true;
+            }
+            if (event == Event::Backspace) {
+                if (!fd->buf.empty()) fd->buf.pop_back();
+                if (fd->buf.empty()) {
+                    state.entries = fd->base;
+                } else {
+                    std::string lower_buf = fd->buf;
+                    std::transform(lower_buf.begin(), lower_buf.end(), lower_buf.begin(), ::tolower);
+                    state.entries.clear();
+                    for (const auto& e : fd->base) {
+                        std::string lower_name = e.name;
+                        std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
+                        if (lower_name.find(lower_buf) != std::string::npos)
+                            state.entries.push_back(e);
+                    }
+                }
+                state.cursor = 0;
+                return true;
+            }
+            if (event.is_character()) {
+                fd->buf += event.character();
+                std::string lower_buf = fd->buf;
+                std::transform(lower_buf.begin(), lower_buf.end(), lower_buf.begin(), ::tolower);
+                state.entries.clear();
+                for (const auto& e : fd->base) {
+                    std::string lower_name = e.name;
+                    std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(), ::tolower);
+                    if (lower_name.find(lower_buf) != std::string::npos)
+                        state.entries.push_back(e);
+                }
+                state.cursor = 0;
+                return true;
+            }
+            return true;
+        }
 
         if (md->kind == ModalKind::ConfirmDelete) {
             if (event == Event::Character('y')) {
@@ -189,18 +242,12 @@ ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
                 md->kind = ModalKind::None;
                 return true;
             }
-            if (event == Event::Escape) {
-                md->kind = ModalKind::None;
-                return true;
-            }
+            if (event == Event::Escape) { md->kind = ModalKind::None; return true; }
             if (event == Event::Backspace) {
                 if (!md->rename_buf.empty()) md->rename_buf.pop_back();
                 return true;
             }
-            if (event.is_character()) {
-                md->rename_buf += event.character();
-                return true;
-            }
+            if (event.is_character()) { md->rename_buf += event.character(); return true; }
             return true;
         }
 
@@ -348,6 +395,15 @@ ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
             case Action::NewDir: {
                 md->new_entry_buf.clear();
                 md->kind = ModalKind::NewDir;
+                return true;
+            }
+
+            case Action::Search: {
+                if (md->kind != ModalKind::None) return true;
+                fd->active = true;
+                fd->buf.clear();
+                fd->base = state.entries;
+                state.cursor = 0;
                 return true;
             }
 

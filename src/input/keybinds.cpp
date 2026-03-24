@@ -17,6 +17,7 @@ Action resolve_action(const Event& event) {
     if (event == Event::Character('p')) return Action::Paste;
     if (event == Event::Character('n')) return Action::NewFile;
     if (event == Event::Character('N')) return Action::NewDir;
+    if (event == Event::Character('/')) return Action::Search;
     if (event == Event::Character('q')) return Action::Quit;
     return Action::Unknown;
 }

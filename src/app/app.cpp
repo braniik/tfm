@@ -62,9 +62,9 @@ void run_app() {
         }) | bgcolor(theme.status_bg);
 
         auto body = hbox({
-            file_pane->Render() | flex_grow | size(WIDTH, GREATER_THAN, 30),
+            file_pane->Render() | flex,
             separator() | color(theme.border),
-            render_preview(selected, theme) | size(WIDTH, EQUAL, 40),
+            render_preview(selected, theme) | flex,
         });
 
         return vbox({
