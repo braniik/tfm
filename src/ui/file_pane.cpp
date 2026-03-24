@@ -1,5 +1,6 @@
 #include "ui/file_pane.hpp"
 #include "ui/icons.hpp"
+#include "core/bookmarks.hpp"
 #include "core/fs_ops.hpp"
 #include "input/keybinds.hpp"
 #include "core/dir_entry.hpp"
@@ -25,6 +26,8 @@ static std::string display_name(const DirEntry& e) {
 }
 
 enum class ModalKind { None, ConfirmDelete, Rename, NewFile, NewDir };
+
+enum class PendingMode { None, BookmarkAdd, BookmarkJump };
 
 struct ModalData {
     ModalKind kind = ModalKind::None;
@@ -90,8 +93,9 @@ static Element render_new_entry_dialog(const std::string& buf, bool is_dir, cons
 ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
     auto md = std::make_shared<ModalData>();
     auto fd = std::make_shared<FilterData>();
+    auto pending = std::make_shared<PendingMode>(PendingMode::None);
 
-    auto component = Renderer([&, md, fd] {
+    auto component = Renderer([&, md, fd, pending] {
         auto header = hbox({
             text(" Name") | color(theme.pane_title) | flex,
             text("Perms     ") | color(theme.pane_title) | size(WIDTH, EQUAL, 11),
@@ -140,6 +144,18 @@ ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
             base_el = dbox({ list_el, render_new_entry_dialog(md->new_entry_buf, md->kind == ModalKind::NewDir, theme) | clear_under | center });
         }
 
+        if (*pending != PendingMode::None) {
+            const bool is_add = (*pending == PendingMode::BookmarkAdd);
+            auto prompt = text(is_add ? " m  " : " ;  ") | color(theme.dir) | bold;
+            auto label = text(is_add ? "mark as: _" : "jump to: _") | color(theme.file);
+            auto bar = hbox({ prompt, label | flex });
+            return vbox({
+                base_el,
+                separator() | color(theme.border),
+                bar,
+            });
+        }
+
         if (!fd->active) return base_el;
 
         auto prompt = text(" /  ") | color(theme.dir) | bold;
@@ -153,7 +169,7 @@ ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
         });
     });
 
-    return CatchEvent(component, [&, md, fd](Event event) -> bool {
+    return CatchEvent(component, [&, md, fd, pending](Event event) -> bool {
         const int n = (int)state.entries.size();
 
         if (fd->active) {
@@ -198,6 +214,38 @@ ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
                         state.entries.push_back(e);
                 }
                 state.cursor = 0;
+                return true;
+            }
+            return true;
+        }
+
+        if (*pending != PendingMode::None) {
+            if (event == Event::Escape) {
+                *pending = PendingMode::None;
+                return true;
+            }
+            if (event.is_character()) {
+                const char key = event.character()[0];
+                if (*pending == PendingMode::BookmarkAdd) {
+                    if (state.bookmarks) {
+                        (*state.bookmarks)[key] = state.cwd;
+                        save_bookmarks(*state.bookmarks);
+                        state.status_msg = std::string("Bookmarked '") + key + "': " + state.cwd;
+                    }
+                } else {
+                    if (state.bookmarks) {
+                        auto it = state.bookmarks->find(key);
+                        if (it != state.bookmarks->end()) {
+                            state.cwd = it->second;
+                            state.entries = scan_dir(state.cwd);
+                            state.cursor = 0;
+                            state.status_msg.clear();
+                        } else {
+                            state.status_msg = std::string("No bookmark '") + key + "'";
+                        }
+                    }
+                }
+                *pending = PendingMode::None;
                 return true;
             }
             return true;
@@ -404,6 +452,18 @@ ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
                 fd->buf.clear();
                 fd->base = state.entries;
                 state.cursor = 0;
+                return true;
+            }
+
+            case Action::BookmarkAdd: {
+                if (md->kind != ModalKind::None || fd->active) return true;
+                *pending = PendingMode::BookmarkAdd;
+                return true;
+            }
+
+            case Action::BookmarkJump: {
+                if (md->kind != ModalKind::None || fd->active) return true;
+                *pending = PendingMode::BookmarkJump;
                 return true;
             }
 

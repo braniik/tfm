@@ -18,6 +18,8 @@ enum class Action {
     NewFile,
     NewDir,
     Search,
+    BookmarkAdd,
+    BookmarkJump,
     Quit,
     Unknown
 };

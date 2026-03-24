@@ -36,3 +36,5 @@ target_compile_options(tfm PRIVATE
     ${TAGLIB_CFLAGS_OTHER}
     $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic>
 )
+
+install(TARGETS tfm DESTINATION bin)

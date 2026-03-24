@@ -1,3 +1,5 @@
 #pragma once
 
-void run_app();
+#include <string>
+
+void run_app(std::string cd_file = "");

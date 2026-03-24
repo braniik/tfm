@@ -1,4 +1,5 @@
 #include "app/app.hpp"
+#include "core/bookmarks.hpp"
 #include "core/dir_entry.hpp"
 #include "core/fs_ops.hpp"
 #include "input/keybinds.hpp"
@@ -12,12 +13,13 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <string>
 
 using namespace ftxui;
 namespace fs = std::filesystem;
 
-void run_app() {
+void run_app(std::string cd_file) {
     const Theme& theme = default_theme();
 
     std::string cwd;
@@ -27,10 +29,13 @@ void run_app() {
         cwd = fs::current_path().string();
     }
 
+    BookmarkMap bookmarks = load_bookmarks();
+
     FilePaneState pane_state;
     pane_state.cwd = cwd;
     pane_state.entries = scan_dir(cwd);
     pane_state.cursor = 0;
+    pane_state.bookmarks = &bookmarks;
 
     auto screen = ScreenInteractive::Fullscreen();
 
@@ -83,4 +88,9 @@ void run_app() {
     });
 
     screen.Loop(main_component);
+
+    if (!cd_file.empty()) {
+        std::ofstream f(cd_file);
+        if (f) f << pane_state.cwd << '\n';
+    }
 }
