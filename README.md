@@ -1,6 +1,9 @@
 # tfm
 A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 
+## Screenshot on my setup
+<img width="1920" height="1200" alt="Screenshot_20260325_000455" src="https://github.com/user-attachments/assets/160fe70f-89e1-4a6f-8f00-475872231a14" />
+
 ## Features
 - **Vim-like bindings:** Navigate your filesystem without leaving the home row. (mostly)
 - **Nerd Font icons:** File type icons for entries and the preview pane.
