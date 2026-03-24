@@ -344,7 +344,7 @@ static Elements dir_preview_rows(const DirEntry& e, const Theme& t) {
     Elements rows;
     rows.push_back(kv_row("files", std::to_string(files), t));
     rows.push_back(kv_row("dirs", std::to_string(dirs), t));
-    rows.push_back(kv_row("total", std::to_string(total), t));
+    rows.push_back(kv_row("total", fmt_size(total), t));
     rows.push_back(text(""));
     rows.push_back(separatorLight() | color(t.border));
     rows.push_back(text(""));
