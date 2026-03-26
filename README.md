@@ -2,7 +2,7 @@
 A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 
 ## Screenshot on my setup
-<img width="1920" height="1200" alt="Screenshot_20260325_000455" src="https:clgithub.com/user-attachments/assets/160fe70f-89e1-4a6f-8f00-475872231a14" />
+<img width="1920" height="1200" alt="Screenshot_20260325_000455" src="https://github.com/user-attachments/assets/160fe70f-89e1-4a6f-8f00-475872231a14" />
 
 ## Features
 - **Vim-like bindings:** Navigate your filesystem without leaving the home row. (mostly)
@@ -109,6 +109,8 @@ Quit     = ["q", "Q"]
 #### Available action names
 
 `MoveUp`, `MoveDown`, `PageUp`, `PageDown`, `Enter`, `Back`, `Open`, `Delete`, `Rename`, `Yank`, `Cut`, `Paste`, `NewFile`, `NewDir`, `Search`, `BookmarkAdd`, `BookmarkJump`, `Quit`
+
+> For special keys use: "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", "Backspace", "PageUp", "PageDown", "Escape"
 
 ### Theme
 
