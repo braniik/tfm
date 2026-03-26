@@ -15,6 +15,7 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 using namespace ftxui;
 namespace fs = std::filesystem;
@@ -90,7 +91,7 @@ static Element render_new_entry_dialog(const std::string& buf, bool is_dir, cons
     }) | border | color(t.border) | bgcolor(Color::RGB(18, 18, 18));
 }
 
-ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
+ftxui::Component make_file_pane(FilePaneState &state, const Theme &theme, const std::unordered_map<std::string, Action> &key_map) {
     auto md = std::make_shared<ModalData>();
     auto fd = std::make_shared<FilterData>();
     auto pending = std::make_shared<PendingMode>(PendingMode::None);
@@ -335,7 +336,7 @@ ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme) {
             return true;
         }
 
-        const Action act = resolve_action(event);
+        const Action act = resolve_action(event, key_map);
 
         switch (act) {
             case Action::MoveUp:

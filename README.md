@@ -2,7 +2,7 @@
 A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 
 ## Screenshot on my setup
-<img width="1920" height="1200" alt="Screenshot_20260325_000455" src="https://github.com/user-attachments/assets/160fe70f-89e1-4a6f-8f00-475872231a14" />
+<img width="1920" height="1200" alt="Screenshot_20260325_000455" src="https:clgithub.com/user-attachments/assets/160fe70f-89e1-4a6f-8f00-475872231a14" />
 
 ## Features
 - **Vim-like bindings:** Navigate your filesystem without leaving the home row. (mostly)
@@ -12,9 +12,11 @@ A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 - **50/50 split layout:** Equal file list and preview pane.
 - **Bookmarks:** Save directories with `m`+key and jump back with `;`+key, persisted across sessions.
 - **Shell integration:** Quit with `q` and your terminal cds to wherever you were browsing.
+- **TOML config:** Rebind any key and customize every color via `~/.config/tfm/config.toml`.
 
 ## Dependencies
 - `ftxui` — pulled automatically via CMake FetchContent, no manual install needed
+- `toml++` — pulled automatically via CMake FetchContent, no manual install needed
 - `taglib` — for audio file metadata (title, artist, album, duration, bitrate)
 
 ## Build
@@ -82,6 +84,47 @@ cmake --build build
 
 > Bookmarks are persisted to `~/.config/tfm/bookmarks` (respects `$XDG_CONFIG_HOME`).
 
+## Configuration
+
+tfm reads an optional TOML config file on startup in `~/.config/tfm/config.toml`
+
+> If you have `$XDG_CONFIG_HOME` set, tfm respects it \
+> The directory is not created automatically, create it yourself if it doesn't exist
+
+
+### Keybindings
+
+Keybindings are configured under the `[keys]` table. Example:
+
+```toml
+[keys]
+MoveUp   = ["k", "ArrowUp"]
+MoveDown = ["j", "ArrowDown"]
+Delete   = ["D"]
+Quit     = ["q", "Q"]
+```
+
+> **Note:** When you specify an action in the config, your array fully replaces the defaults for that action.
+
+#### Available action names
+
+`MoveUp`, `MoveDown`, `PageUp`, `PageDown`, `Enter`, `Back`, `Open`, `Delete`, `Rename`, `Yank`, `Cut`, `Paste`, `NewFile`, `NewDir`, `Search`, `BookmarkAdd`, `BookmarkJump`, `Quit`
+
+### Theme
+
+Colors are configured under the `[theme]` table. Every value must be a hex color string. Example:
+
+```toml
+[theme]
+dir         = "#5fd7ff"
+selected_bg = "#005faf"
+border      = "#444444"
+```
+
+#### Available color slots
+
+`dir`, `file`, `exec`, `symlink`, `hidden`, `selected_bg`, `selected_fg`, `status_fg`, `status_bg`, `border`, `pane_title`
+
 ## Shell integration
 
 After installing just type `tfm` to launch it from anywhere.
@@ -139,9 +182,10 @@ tfm/
 │   ├── app/app.hpp         — declares run_app(cd_file)
 │   ├── core/
 │   │   ├── bookmarks.hpp   — BookmarkMap, load_bookmarks(), save_bookmarks()
+│   │   ├── config.hpp      — Config struct, load_config()
 │   │   ├── dir_entry.hpp   — DirEntry, EntryKind, scan_dir(), fmt_size()
 │   │   └── fs_ops.hpp      — copy, move, rename, delete, open_in_editor()
-│   ├── input/keybinds.hpp  — Action enum, resolve_action()
+│   ├── input/keybinds.hpp  — Action enum, event_to_key(), resolve_action()
 │   └── ui/
 │       ├── file_pane.hpp   — FilePaneState, ClipboardEntry, make_file_pane()
 │       ├── icons.hpp       — icon_for()
@@ -149,17 +193,18 @@ tfm/
 │       └── theme.hpp       — Theme struct, default_theme(), style_entry()
 └── src/
     ├── main.cpp            — parses --cd-file / $TFM_CD_FILE, calls run_app()
-    ├── app/app.cpp         — screen loop, loads bookmarks, wires all modules, writes cd-file on quit
+    ├── app/app.cpp         — screen loop, loads config+bookmarks, wires all modules, writes cd-file on quit
     ├── core/
     │   ├── bookmarks.cpp   — XDG-aware bookmark persistence (~/.config/tfm/bookmarks)
+    │   ├── config.cpp      — TOML config parsing, default key map and theme
     │   ├── dir_entry.cpp   — directory scanning via std::filesystem + POSIX lstat
     │   └── fs_ops.cpp      — filesystem operations
-    ├── input/keybinds.cpp  — raw FTXUI events → named Actions
+    ├── input/keybinds.cpp  — FTXUI events → key strings → Actions
     └── ui/
         ├── file_pane.cpp   — file list, navigation, filter, dialogs, clipboard, bookmarks
         ├── icons.cpp       — Nerd Font icon lookup by kind and extension
         ├── preview_pane.cpp— text/image/audio/binary/directory preview
-        └── theme.cpp       — every color in the app lives here
+        └── theme.cpp       — default colors
 ```
 
 ## Requirements
@@ -177,6 +222,6 @@ tfm/
 - [x] Step 4 — Preview pane content: text preview, directory listings, audio metadata, image dimensions, binary/ELF hex dump
 - [x] Step 5 — Real-time fuzzy filter
 - [x] Step 6 — Shell integration, bookmarks
-- [ ] Step 7 — TOML config, rebindable keys, custom themes
+- [x] Step 7 — TOML config, rebindable keys, custom themes
 - [ ] Step 8 — Polish, git indicators
 - [ ] Step 9 — AUR package (maybe)

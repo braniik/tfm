@@ -1,11 +1,11 @@
 #include "app/app.hpp"
 #include "core/bookmarks.hpp"
+#include "core/config.hpp"
 #include "core/dir_entry.hpp"
 #include "core/fs_ops.hpp"
 #include "input/keybinds.hpp"
 #include "ui/file_pane.hpp"
 #include "ui/preview_pane.hpp"
-#include "ui/theme.hpp"
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
@@ -20,10 +20,11 @@ using namespace ftxui;
 namespace fs = std::filesystem;
 
 void run_app(std::string cd_file) {
-    const Theme& theme = default_theme();
+    const Config cfg = load_config();
+    const Theme &theme = cfg.theme;
 
     std::string cwd;
-    if (const char* pwd = std::getenv("PWD")) {
+    if (const char *pwd = std::getenv("PWD")) {
         cwd = pwd;
     } else {
         cwd = fs::current_path().string();
@@ -39,16 +40,16 @@ void run_app(std::string cd_file) {
 
     auto screen = ScreenInteractive::Fullscreen();
 
-    pane_state.open_callback = [&](const std::string& path) {
+    pane_state.open_callback = [&](const std::string &path) {
         screen.WithRestoredIO([path] {
             fs_ops::open_in_editor(path);
         })();
     };
 
-    auto file_pane = make_file_pane(pane_state, theme);
+    auto file_pane = make_file_pane(pane_state, theme, cfg.key_map);
 
     auto main_component = Renderer(file_pane, [&] {
-        const DirEntry* selected = nullptr;
+        const DirEntry *selected = nullptr;
         std::string right_info;
 
         if (!pane_state.entries.empty()) {
@@ -80,7 +81,7 @@ void run_app(std::string cd_file) {
     });
 
     main_component = CatchEvent(main_component, [&](Event event) {
-        if (resolve_action(event) == Action::Quit) {
+        if (resolve_action(event, cfg.key_map) == Action::Quit) {
             screen.ExitLoopClosure()();
             return true;
         }

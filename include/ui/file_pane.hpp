@@ -7,6 +7,7 @@
 #include <vector>
 #include "core/bookmarks.hpp"
 #include "core/dir_entry.hpp"
+#include "input/keybinds.hpp"
 #include "ui/theme.hpp"
 
 struct ClipboardEntry {
@@ -26,4 +27,4 @@ struct FilePaneState {
     BookmarkMap *bookmarks = nullptr;
 };
 
-ftxui::Component make_file_pane(FilePaneState& state, const Theme& theme);
+ftxui::Component make_file_pane(FilePaneState &state, const Theme &theme, const std::unordered_map<std::string, Action> &key_map);

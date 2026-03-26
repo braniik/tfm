@@ -16,6 +16,13 @@ set(FTXUI_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(FTXUI_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(ftxui)
 
+FetchContent_Declare(tomlplusplus
+    GIT_REPOSITORY https://github.com/marzer/tomlplusplus
+    GIT_TAG v3.4.0
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(tomlplusplus)
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(TAGLIB REQUIRED taglib)
 
@@ -29,6 +36,7 @@ target_link_libraries(tfm PRIVATE
     ftxui::screen
     ftxui::dom
     ftxui::component
+    tomlplusplus::tomlplusplus
     ${TAGLIB_LIBRARIES}
 )
 

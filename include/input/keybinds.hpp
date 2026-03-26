@@ -1,6 +1,8 @@
 #pragma once
 
 #include <ftxui/component/event.hpp>
+#include <string>
+#include <unordered_map>
 
 enum class Action {
     MoveUp,
@@ -24,4 +26,6 @@ enum class Action {
     Unknown
 };
 
-Action resolve_action(const ftxui::Event& event);
+std::string event_to_key(const ftxui::Event &event);
+
+Action resolve_action(const ftxui::Event &event, const std::unordered_map<std::string, Action> &key_map);
