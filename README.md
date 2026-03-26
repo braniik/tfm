@@ -2,7 +2,11 @@
 A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 
 ## Screenshot on my setup
+### Default
 <img width="1920" height="1200" alt="Screenshot_20260325_000455" src="https://github.com/user-attachments/assets/160fe70f-89e1-4a6f-8f00-475872231a14" />
+
+### Me playing with TOML config
+<img width="2559" height="1550" alt="Screenshot_20260326_171450" src="https://github.com/user-attachments/assets/eba45c0f-e346-428d-b72a-612f70165738" />
 
 ## Features
 - **Vim-like bindings:** Navigate your filesystem without leaving the home row. (mostly)
@@ -104,13 +108,11 @@ Delete   = ["D"]
 Quit     = ["q", "Q"]
 ```
 
-> **Note:** When you specify an action in the config, your array fully replaces the defaults for that action.
+> **Note:** When you specify an action in the config, your array fully replaces the defaults for that action. For special keys use: "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", "Backspace", "PageUp", "PageDown", "Escape"
 
 #### Available action names
 
 `MoveUp`, `MoveDown`, `PageUp`, `PageDown`, `Enter`, `Back`, `Open`, `Delete`, `Rename`, `Yank`, `Cut`, `Paste`, `NewFile`, `NewDir`, `Search`, `BookmarkAdd`, `BookmarkJump`, `Quit`
-
-> For special keys use: "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", "Backspace", "PageUp", "PageDown", "Escape"
 
 ### Theme
 
