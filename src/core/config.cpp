@@ -130,15 +130,16 @@ Config load_config() {
         };
         Theme &t = cfg.theme;
         t.dir = get("dir", t.dir);
+        t.hidden_dir = get("hidden_dir", t.hidden_dir);
         t.file = get("file", t.file);
         t.exec = get("exec", t.exec);
         t.symlink = get("symlink", t.symlink);
         t.hidden = get("hidden", t.hidden);
         t.selected_bg = get("selected_bg", t.selected_bg);
         t.selected_fg = get("selected_fg", t.selected_fg);
-        t.status_fg  = get("status_fg", t.status_fg);
-        t.status_bg  = get("status_bg", t.status_bg);
-        t.border     = get("border", t.border);
+        t.status_fg = get("status_fg", t.status_fg);
+        t.status_bg = get("status_bg", t.status_bg);
+        t.border = get("border", t.border);
         t.pane_title = get("pane_title", t.pane_title);
     }
 

@@ -4,6 +4,7 @@ using namespace ftxui;
 
 static const Theme DARK = {
     /* dir         */ Color::RGB(80, 210, 255),
+    /* hidden_dir  */ Color::RGB(75, 110, 125),
     /* file        */ Color::White,
     /* exec        */ Color::RGB(90, 255, 90),
     /* symlink     */ Color::RGB(255, 190, 60),
@@ -24,6 +25,7 @@ Element style_entry(const Theme& t, EntryKind kind, bool selected, Element elem)
     }
     switch (kind) {
         case EntryKind::Directory: return elem | color(t.dir) | bold;
+        case EntryKind::HiddenDir: return elem | color(t.hidden_dir) | dim;
         case EntryKind::Executable: return elem | color(t.exec) | bold;
         case EntryKind::Symlink: return elem | color(t.symlink);
         case EntryKind::Hidden: return elem | color(t.hidden) | dim;

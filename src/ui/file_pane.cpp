@@ -112,9 +112,19 @@ ftxui::Component make_file_pane(FilePaneState &state, const Theme &theme, const 
             const bool sel = (i == state.cursor);
             const std::string label = icon_for(e) + display_name(e);
 
-            auto name_col = style_entry(theme, e.kind, sel, text(" " + label)) | flex;
+            ftxui::Color git_color = theme.hidden;
+            if (e.git_status == 'M') git_color = Color::RGB(255, 200, 50);
+            else if (e.git_status == 'A') git_color = Color::RGB(90, 255, 90);
+            else if (e.git_status == 'D') git_color = Color::RGB(255, 80, 80);
+
+            auto name_text = sel ? text(" " + label) : text(" " + label);
+            auto name_styled = style_entry(theme, e.kind, sel, name_text);
+            auto git_badge = e.git_status
+                ? text(std::string(1, e.git_status) + " ") | color(sel ? git_color : git_color)
+                : text("  ");
+            auto name_col = hbox({ name_styled | flex, git_badge }) | flex;
             auto perms_col = style_entry(theme, e.kind, sel, text(e.perms)) | size(WIDTH, EQUAL, 11);
-            auto size_col = style_entry(theme, e.kind, sel, text(e.kind == EntryKind::Directory ? "         " : fmt_size(e.size))) | size(WIDTH, EQUAL, 9);
+            auto size_col = style_entry(theme, e.kind, sel, text(e.kind == EntryKind::Directory || e.kind == EntryKind::HiddenDir ? "         " : fmt_size(e.size))) | size(WIDTH, EQUAL, 9);
 
             auto row = hbox({ name_col, perms_col, size_col });
             if (sel) row = row | focus;
@@ -366,7 +376,7 @@ ftxui::Component make_file_pane(FilePaneState &state, const Theme &theme, const 
                 } else {
                     if (state.entries.empty()) return true;
                     const auto& sel = state.entries[state.cursor];
-                    if (sel.kind == EntryKind::Directory) {
+                    if (sel.kind == EntryKind::Directory || sel.kind == EntryKind::HiddenDir) {
                         target = sel.path;
                     } else {
                         if (state.open_callback) state.open_callback(sel.path);

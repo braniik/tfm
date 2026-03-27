@@ -6,6 +6,7 @@
 
 enum class EntryKind : uint8_t {
     Directory,
+    HiddenDir,
     File,
     Executable,
     Symlink,
@@ -19,6 +20,7 @@ struct DirEntry {
     EntryKind kind;
     uintmax_t size;
     std::string perms;
+    char git_status = 0;
 };
 
 std::vector<DirEntry> scan_dir(const std::string& path);

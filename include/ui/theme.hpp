@@ -6,6 +6,7 @@
 
 struct Theme {
     ftxui::Color dir;
+    ftxui::Color hidden_dir;
     ftxui::Color file;
     ftxui::Color exec;
     ftxui::Color symlink;

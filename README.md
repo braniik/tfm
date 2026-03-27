@@ -22,6 +22,7 @@ A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 - `ftxui` — pulled automatically via CMake FetchContent, no manual install needed
 - `toml++` — pulled automatically via CMake FetchContent, no manual install needed
 - `taglib` — for audio file metadata (title, artist, album, duration, bitrate)
+- `git` — for git status indicators (implicitly optional)
 
 ## Build
 
@@ -127,7 +128,7 @@ border      = "#444444"
 
 #### Available color slots
 
-`dir`, `file`, `exec`, `symlink`, `hidden`, `selected_bg`, `selected_fg`, `status_fg`, `status_bg`, `border`, `pane_title`
+`dir`, `hidden_dir`, `file`, `exec`, `symlink`, `hidden`, `selected_bg`, `selected_fg`, `status_fg`, `status_bg`, `border`, `pane_title`
 
 ## Shell integration
 
@@ -175,6 +176,10 @@ tfm() {
 ```
 
 Once set up, just run `tfm` and browse around!
+
+## Git indicators
+
+Intentionally minimal, it just shells out to `git status --porcelain` on each directory load. That said, this is an open-source project and if anyone feels like expanding the git integration further, contributions are very welcome.
 
 
 ## Project structure
@@ -227,5 +232,5 @@ tfm/
 - [x] Step 5 — Real-time fuzzy filter
 - [x] Step 6 — Shell integration, bookmarks
 - [x] Step 7 — TOML config, rebindable keys, custom themes
-- [ ] Step 8 — Polish, git indicators
+- [x] Step 8 — Polish, git indicators
 - [ ] Step 9 — AUR package (maybe)

@@ -67,7 +67,7 @@ static bool is_audio_ext(const std::string& ext) {
 }
 
 static PreviewKind classify(const DirEntry& e) {
-    if (e.kind == EntryKind::Directory) return PreviewKind::Directory;
+    if (e.kind == EntryKind::Directory || e.kind == EntryKind::HiddenDir) return PreviewKind::Directory;
     const std::string ext = ext_of(e.name);
     if (is_text_ext(ext)) return PreviewKind::Text;
     if (is_image_ext(ext)) return PreviewKind::Image;
@@ -379,6 +379,7 @@ static Elements dir_preview_rows(const DirEntry& e, const Theme& t) {
 static const char* kind_label(EntryKind k) {
     switch (k) {
         case EntryKind::Directory: return "directory";
+        case EntryKind::HiddenDir: return "hidden directory";
         case EntryKind::Executable: return "executable";
         case EntryKind::Symlink: return "symlink";
         case EntryKind::Hidden: return "hidden";

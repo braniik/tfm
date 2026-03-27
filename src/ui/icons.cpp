@@ -21,7 +21,7 @@ static const std::unordered_map<std::string, const char*> EXT_ICONS = {
     { ".py", " " },
     { ".sh", " " },
     { ".bash", " " },
-    { ".zsh",  " " },
+    { ".zsh", " " },
     { ".fish", " " },
     { ".rb", " " },
     { ".lua", " " },
@@ -107,6 +107,7 @@ static const std::unordered_map<std::string, const char*> EXT_ICONS = {
 std::string icon_for(const DirEntry& entry) {
     switch (entry.kind) {
         case EntryKind::Directory: return " ";
+        case EntryKind::HiddenDir: return " ";
         case EntryKind::Symlink: return " ";
         case EntryKind::Executable: return " ";
         case EntryKind::Hidden: {
