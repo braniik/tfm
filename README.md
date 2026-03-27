@@ -17,6 +17,7 @@ A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 - **Bookmarks:** Save directories with `m`+key and jump back with `;`+key, persisted across sessions.
 - **Shell integration:** Quit with `q` and your terminal cds to wherever you were browsing.
 - **TOML config:** Rebind any key and customize every color via `~/.config/tfm/config.toml`.
+- **Git indicators:** Minimal per-file git status badges (M, A, D, ?) when inside a repo. Requires git on PATH.
 
 ## Dependencies
 - `ftxui` — pulled automatically via CMake FetchContent, no manual install needed
