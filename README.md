@@ -13,6 +13,7 @@ A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 #### Hyprland
 <img width="2560" height="1558" alt="20260329_151722" src="https://github.com/user-attachments/assets/2ab5304d-c019-4fc0-a7b9-2fcece36b28f" />
 
+> **Note:** A Nerd Font is required for icons to render correctly (e.g. `ttf-jetbrains-mono-nerd`).
 
 ## Features
 - **Vim-like bindings:** Navigate your filesystem without leaving the home row. (mostly)
@@ -30,6 +31,17 @@ A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 - `toml++` — pulled automatically via CMake FetchContent, no manual install needed
 - `taglib` — for audio file metadata (title, artist, album, duration, bitrate)
 - `git` — for git status indicators (implicitly optional)
+
+## Installation
+### Arch Linux
+
+```bash
+yay -S tfm-git
+```
+
+### Other Distros
+
+Scroll lower to see how to build from source.
 
 ## Build
 
@@ -223,14 +235,6 @@ tfm/
         └── theme.cpp       — default colors
 ```
 
-## Requirements
-- Linux
-- GCC with C++17 support
-- CMake 3.20+
-- Ninja
-- TagLib
-- A [Nerd Font](https://www.nerdfonts.com/) (e.g. `ttf-jetbrains-mono-nerd` from pacman)
-
 ## Roadmap
 - [x] Step 1 — Foundation: directory listing, navigation, theme
 - [x] Step 2 — Two-pane layout, Nerd Font icons, preview pane skeleton
@@ -240,4 +244,16 @@ tfm/
 - [x] Step 6 — Shell integration, bookmarks
 - [x] Step 7 — TOML config, rebindable keys, custom themes
 - [x] Step 8 — Polish, git indicators
-- [ ] Step 9 — AUR package (maybe)
+- [x] Step 9 — AUR package
+
+## Contributing
+
+tfm started as a personal tool and the original roadmap is done, but there's always more to build. I myself will probably come back to add more if I miss something. If you find a bug, have a feature idea, or want to add support for your distro, issues and contributions are very welcome.
+
+Some ideas if you're looking for a starting point:
+- Support for more distros (currently only tested on Arch since that's what I use)
+- Bulk operations (multi-select)
+- More preview types
+- Expanded git integration (it's intentionally minimal right now)
+
+I hope tfm serves you well, and thank you for reading to the end.
