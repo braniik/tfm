@@ -6,7 +6,13 @@ A keyboard-driven TUI file manager for Linux, built with C++17 and FTXUI.
 <img width="1920" height="1200" alt="Screenshot_20260325_000455" src="https://github.com/user-attachments/assets/160fe70f-89e1-4a6f-8f00-475872231a14" />
 
 ### Me playing with TOML config
+
+#### KDE Plasma
 <img width="2559" height="1550" alt="Screenshot_20260326_171450" src="https://github.com/user-attachments/assets/eba45c0f-e346-428d-b72a-612f70165738" />
+
+#### Hyprland
+<img width="2560" height="1558" alt="20260329_151722" src="https://github.com/user-attachments/assets/2ab5304d-c019-4fc0-a7b9-2fcece36b28f" />
+
 
 ## Features
 - **Vim-like bindings:** Navigate your filesystem without leaving the home row. (mostly)
