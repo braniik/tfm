@@ -16,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 using namespace ftxui;
 namespace fs = std::filesystem;
@@ -26,7 +27,7 @@ static std::string display_name(const DirEntry& e) {
     return e.name;
 }
 
-enum class ModalKind { None, ConfirmDelete, Rename, NewFile, NewDir };
+enum class ModalKind { None, ConfirmDelete, Rename, NewFile, NewDir, EditorPicker };
 
 enum class PendingMode { None, BookmarkAdd, BookmarkJump };
 
@@ -34,6 +35,9 @@ struct ModalData {
     ModalKind kind = ModalKind::None;
     std::string rename_buf;
     std::string new_entry_buf;
+    std::vector<std::string> editors;
+    int editor_cursor = 0;
+    std::string editor_target_path;
 };
 
 struct FilterData {
@@ -84,6 +88,30 @@ static Element render_new_entry_dialog(const std::string& buf, bool is_dir, cons
         hbox({
             text("   [Enter] ") | color(t.exec) | bold,
             text("confirm      "),
+            text("[Esc]  ") | color(t.hidden),
+            text("cancel"),
+        }),
+        text(""),
+    }) | border | color(t.border) | bgcolor(Color::RGB(18, 18, 18));
+}
+
+static Element render_editor_picker_dialog(const std::vector<std::string>& editors, int cursor, const Theme& t) {
+    Elements items;
+    for (int i = 0; i < (int)editors.size(); ++i) {
+        const bool sel = (i == cursor);
+        auto label = text((sel ? "  > " : "    ") + editors[i]);
+        items.push_back(sel ? (label | color(Color::White) | bold) : (label | color(t.file)));
+    }
+
+    return vbox({
+        text(""),
+        text("  Open with") | bold | color(Color::White),
+        text(""),
+        vbox(items),
+        text(""),
+        hbox({
+            text("   [Enter] ") | color(t.exec) | bold,
+            text("open      "),
             text("[Esc]  ") | color(t.hidden),
             text("cancel"),
         }),
@@ -153,6 +181,8 @@ ftxui::Component make_file_pane(FilePaneState &state, const Theme &theme, const 
             base_el = dbox({ list_el, render_rename_dialog(md->rename_buf, theme) | clear_under | center });
         } else if (md->kind == ModalKind::NewFile || md->kind == ModalKind::NewDir) {
             base_el = dbox({ list_el, render_new_entry_dialog(md->new_entry_buf, md->kind == ModalKind::NewDir, theme) | clear_under | center });
+        } else if (md->kind == ModalKind::EditorPicker) {
+            base_el = dbox({ list_el, render_editor_picker_dialog(md->editors, md->editor_cursor, theme) | clear_under | center });
         }
 
         if (*pending != PendingMode::None) {
@@ -257,6 +287,30 @@ ftxui::Component make_file_pane(FilePaneState &state, const Theme &theme, const 
                     }
                 }
                 *pending = PendingMode::None;
+                return true;
+            }
+            return true;
+        }
+
+        if (md->kind == ModalKind::EditorPicker) {
+            const int ne = (int)md->editors.size();
+            if (event == Event::Escape) {
+                md->kind = ModalKind::None;
+                return true;
+            }
+            if (event == Event::Return && ne > 0) {
+                const std::string editor = md->editors[md->editor_cursor];
+                const std::string path = md->editor_target_path;
+                md->kind = ModalKind::None;
+                if (state.open_with_callback) state.open_with_callback(path, editor);
+                return true;
+            }
+            if (event == Event::ArrowUp || event == Event::Character('k')) {
+                if (md->editor_cursor > 0) --md->editor_cursor;
+                return true;
+            }
+            if (event == Event::ArrowDown || event == Event::Character('j')) {
+                if (md->editor_cursor < ne - 1) ++md->editor_cursor;
                 return true;
             }
             return true;
@@ -393,8 +447,16 @@ ftxui::Component make_file_pane(FilePaneState &state, const Theme &theme, const 
             case Action::Open: {
                 if (state.entries.empty()) return true;
                 const auto& sel = state.entries[state.cursor];
-                if (sel.kind != EntryKind::Directory && state.open_callback)
-                    state.open_callback(sel.path);
+                if (sel.kind == EntryKind::Directory || sel.kind == EntryKind::HiddenDir)
+                    return true;
+                md->editors = fs_ops::find_editors();
+                if (md->editors.empty()) {
+                    if (state.open_callback) state.open_callback(sel.path);
+                    return true;
+                }
+                md->editor_cursor = 0;
+                md->editor_target_path = sel.path;
+                md->kind = ModalKind::EditorPicker;
                 return true;
             }
 

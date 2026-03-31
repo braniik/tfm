@@ -23,6 +23,7 @@ struct FilePaneState {
     std::optional<ClipboardEntry> clipboard;
     std::string status_msg;
     std::function<void(const std::string&)> open_callback;
+    std::function<void(const std::string&, const std::string&)> open_with_callback;
 
     BookmarkMap *bookmarks = nullptr;
 };

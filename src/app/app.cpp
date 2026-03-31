@@ -46,6 +46,12 @@ void run_app(std::string cd_file) {
         })();
     };
 
+    pane_state.open_with_callback = [&](const std::string &path, const std::string &editor) {
+        screen.WithRestoredIO([path, editor] {
+            fs_ops::open_in_editor(path, editor);
+        })();
+    };
+
     auto file_pane = make_file_pane(pane_state, theme, cfg.key_map);
 
     auto main_component = Renderer(file_pane, [&] {

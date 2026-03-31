@@ -84,7 +84,7 @@ cmake --build build
 ### File operations
 | Key | Action |
 |-----|--------|
-| <kbd>o</kbd> | Open file in `$EDITOR` |
+| <kbd>o</kbd> | Open editor picker |
 | <kbd>n</kbd> | New file |
 | <kbd>N</kbd> | New directory |
 | <kbd>r</kbd> | Rename |
